@@ -1099,7 +1099,6 @@ NgReactGrid.prototype.updateTotalCount = function (updates) {
  * @param updates
  */
 NgReactGrid.prototype.updateColumns = function (updates) {
-    console.log("SDF");
     this.columnDefs = updates.columnDefs;
 };
 
@@ -1380,14 +1379,34 @@ NgReactGridReactManager.prototype.performLocalSort = function (update) {
 
     var isAsc = update.sortInfo.dir === "asc";
 
+    /**
+     * Check if a custom sort function has been provided
+     */
+    var columnDef = this.ngReactGrid.columnDefs.filter(function(obj) {
+        return (obj.field !== undefined) && (obj.field === update.sortInfo.field);
+    });
+    var customSortFn;
+    if ((columnDef.length !== 0) && (columnDef[0].sortInfo !== undefined)) {
+        customSortFn = columnDef[0].sortInfo.sortFn;
+    }
+
     copy.sort(function (a, b) {
         var aField = this.getObjectPropertyByString(a, update.sortInfo.field);
         var bField = this.getObjectPropertyByString(b, update.sortInfo.field);
 
         if (isAsc) {
-            return aField <= bField ? -1 : 1;
+            if (customSortFn !== undefined) {
+                return customSortFn(aField, bField);
+            } else {
+                return aField <= bField ? -1 : 1;
+            }
+
         } else {
-            return aField >= bField ? -1 : 1;
+            if (customSortFn !== undefined) {
+                return customSortFn(bField, aField);
+            } else {
+                return aField >= bField ? -1 : 1;
+            }
         }
     }.bind(this));
 
