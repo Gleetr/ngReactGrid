@@ -179,8 +179,10 @@ NgReactGridReactManager.prototype.performLocalSort = function (update) {
         return (obj.field !== undefined) && (obj.field === update.sortInfo.field);
     });
     var customSortFn;
+    var customRowSortFn;
     if ((columnDef.length !== 0) && (columnDef[0].sortInfo !== undefined)) {
         customSortFn = columnDef[0].sortInfo.sortFn;
+        customRowSortFn = columnDef[0].sortInfo.rowSortFn;
     }
 
     copy.sort(function (a, b) {
@@ -190,6 +192,8 @@ NgReactGridReactManager.prototype.performLocalSort = function (update) {
         if (isAsc) {
             if (customSortFn !== undefined) {
                 return customSortFn(aField, bField);
+            } else if (customRowSortFn !== undefined) {
+                return customRowSortFn(a, b);
             } else {
                 return aField <= bField ? -1 : 1;
             }
@@ -197,6 +201,8 @@ NgReactGridReactManager.prototype.performLocalSort = function (update) {
         } else {
             if (customSortFn !== undefined) {
                 return customSortFn(bField, aField);
+            } else if (customRowSortFn !== undefined) {
+                return customRowSortFn(b, a);
             } else {
                 return aField >= bField ? -1 : 1;
             }
