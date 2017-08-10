@@ -210,7 +210,7 @@ NgReactGridReactManager.prototype.performLocalSort = function (update) {
     }.bind(this));
 
     update.data = copy;
-    update.currentPage = 1;
+    update.currentPage = this.ngReactGrid.currentPage;
 
     this.ngReactGrid.update(this.ngReactGrid.events.SORTING, update);
 };
@@ -309,15 +309,17 @@ NgReactGridReactManager.prototype.rowClick = function(row) {
  * @returns {*}
  */
 NgReactGridReactManager.prototype.wrapFunctionsInAngular = function (cell) {
-    for (var key in cell.props) {
-        if (cell.props.hasOwnProperty(key)) {
-            if (key === "children" && cell.props[key]) {
-                this.wrapFunctionsInAngular(cell.props[key]);
-            } else if (typeof cell.props[key] === 'function') {
-                cell.props[key] = this.wrapWithRootScope(cell.props[key]);
+    if (cell && cell.props) {
+        for (var key in cell.props) {
+            if (cell.props.hasOwnProperty(key)) {
+                if (key === "children" && cell.props[key]) {
+                    this.wrapFunctionsInAngular(cell.props[key]);
+                } else if (typeof cell.props[key] === 'function') {
+                    cell.props[key] = this.wrapWithRootScope(cell.props[key]);
+                }
             }
-        }
 
+        }
     }
     return cell;
 };

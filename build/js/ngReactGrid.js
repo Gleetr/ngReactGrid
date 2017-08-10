@@ -947,6 +947,14 @@ NgReactGrid.prototype.initWatchers = function () {
             this.update(this.events.DATA, {
                 data: newValue
             });
+            if (this.isSearching()) {
+                this.react.setSearch(this.search);
+            }
+            if (this.sortInfo && this.sortInfo.field) {
+                this.react.performLocalSort({
+                    sortInfo: this.sortInfo
+                });
+            }
         }
     }.bind(this));
 
@@ -1081,7 +1089,7 @@ NgReactGrid.prototype.updateSorting = function (updates) {
     this.sortInfo = updates.sortInfo;
 
     if (updates.data) {
-        this.currentPage = 1;
+        // this.currentPage = 1;
         this.updateData({
             data: updates.data
         }, true);
@@ -1420,7 +1428,7 @@ NgReactGridReactManager.prototype.performLocalSort = function (update) {
     }.bind(this));
 
     update.data = copy;
-    update.currentPage = 1;
+    update.currentPage = this.ngReactGrid.currentPage;
 
     this.ngReactGrid.update(this.ngReactGrid.events.SORTING, update);
 };
@@ -1462,7 +1470,7 @@ NgReactGridReactManager.prototype.deepSearch = function(obj, search) {
  * Search callback for everytime the user updates the search box, supports local mode and server mode
  * @param search
  */
-NgReactGridReactManager.prototype.setSearch = function (search) {
+NgReactGridReactManager.prototype.setSearch = function (search, resetPage) {
     var update = {
         search: search
     };
@@ -1477,7 +1485,9 @@ NgReactGridReactManager.prototype.setSearch = function (search) {
         }.bind(this));
 
         update.data = this.filteredData;
-        update.currentPage = 1;
+        if (resetPage === undefined || resetPage) {
+            update.currentPage = 1;
+        }
 
         this.ngReactGrid.update(this.ngReactGrid.events.SEARCH, update);
 
@@ -1519,15 +1529,17 @@ NgReactGridReactManager.prototype.rowClick = function(row) {
  * @returns {*}
  */
 NgReactGridReactManager.prototype.wrapFunctionsInAngular = function (cell) {
-    for (var key in cell.props) {
-        if (cell.props.hasOwnProperty(key)) {
-            if (key === "children" && cell.props[key]) {
-                this.wrapFunctionsInAngular(cell.props[key]);
-            } else if (typeof cell.props[key] === 'function') {
-                cell.props[key] = this.wrapWithRootScope(cell.props[key]);
+    if (cell && cell.props) {
+        for (var key in cell.props) {
+            if (cell.props.hasOwnProperty(key)) {
+                if (key === "children" && cell.props[key]) {
+                    this.wrapFunctionsInAngular(cell.props[key]);
+                } else if (typeof cell.props[key] === 'function') {
+                    cell.props[key] = this.wrapWithRootScope(cell.props[key]);
+                }
             }
-        }
 
+        }
     }
     return cell;
 };

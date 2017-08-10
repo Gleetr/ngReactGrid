@@ -211,6 +211,14 @@ NgReactGrid.prototype.initWatchers = function () {
             this.update(this.events.DATA, {
                 data: newValue
             });
+            if (this.isSearching()) {
+                this.react.setSearch(this.search);
+            }
+            if (this.sortInfo && this.sortInfo.field) {
+                this.react.performLocalSort({
+                    sortInfo: this.sortInfo
+                });
+            }
         }
     }.bind(this));
 
@@ -345,7 +353,7 @@ NgReactGrid.prototype.updateSorting = function (updates) {
     this.sortInfo = updates.sortInfo;
 
     if (updates.data) {
-        this.currentPage = 1;
+        // this.currentPage = 1;
         this.updateData({
             data: updates.data
         }, true);
