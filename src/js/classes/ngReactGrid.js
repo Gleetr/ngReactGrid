@@ -208,9 +208,17 @@ NgReactGrid.prototype.initWatchers = function () {
                 this.react.loading = false;
             }
 
+            // reset page if necessary
+            if (newValue.length <= this.pageSize * (this.currentPage - 1)) {
+                this.currentPage = Math.ceil(newValue.length / this.pageSize);
+            }
+
+            // update data
             this.update(this.events.DATA, {
                 data: newValue
             });
+
+            // apply search and sort
             if (this.isSearching()) {
                 this.react.setSearch(this.search);
             }
