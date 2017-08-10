@@ -209,8 +209,14 @@ NgReactGrid.prototype.initWatchers = function () {
             }
 
             // reset page if necessary
+            if (this.currentPage < 1) {
+                this.currentPage = 1;
+            }
             if (newValue.length <= this.pageSize * (this.currentPage - 1)) {
                 this.currentPage = Math.ceil(newValue.length / this.pageSize);
+                if (this.currentPage < 1) {
+                    this.currentPage = 1;
+                }
             }
 
             // update data
