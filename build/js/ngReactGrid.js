@@ -944,9 +944,17 @@ NgReactGrid.prototype.initWatchers = function () {
                 this.react.loading = false;
             }
 
+            // reset page if necessary
+            if (newValue.length <= this.pageSize * (this.currentPage - 1)) {
+                this.currentPage = Math.ceil(newValue.length / this.pageSize);
+            }
+
+            // update data
             this.update(this.events.DATA, {
                 data: newValue
             });
+
+            // apply search and sort
             if (this.isSearching()) {
                 this.react.setSearch(this.search);
             }
@@ -1470,7 +1478,7 @@ NgReactGridReactManager.prototype.deepSearch = function(obj, search) {
  * Search callback for everytime the user updates the search box, supports local mode and server mode
  * @param search
  */
-NgReactGridReactManager.prototype.setSearch = function (search, resetPage) {
+NgReactGridReactManager.prototype.setSearch = function (search) {
     var update = {
         search: search
     };
@@ -1485,9 +1493,7 @@ NgReactGridReactManager.prototype.setSearch = function (search, resetPage) {
         }.bind(this));
 
         update.data = this.filteredData;
-        if (resetPage === undefined || resetPage) {
-            update.currentPage = 1;
-        }
+        update.currentPage = 1;
 
         this.ngReactGrid.update(this.ngReactGrid.events.SEARCH, update);
 
